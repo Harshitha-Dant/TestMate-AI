@@ -4,6 +4,8 @@ coverage/
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
+*.sqlite3
 server/data/
 .env
 .env.*
