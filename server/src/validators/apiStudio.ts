@@ -5,7 +5,8 @@ import { idSchema } from "./common";
 /** Headers the HTTP client manages itself; letting users set them invites request smuggling or confusion. */
 const MANAGED_HEADERS = new Set(["host", "content-length", "transfer-encoding", "connection", "upgrade", "keep-alive", "te", "trailer", "expect"]);
 
-const headerEntry = z
+/** One request header: a valid HTTP token name (not a client-managed one) and a value without line breaks. */
+export const headerEntry = z
   .object({
     key: z.string().trim().max(200),
     value: z.string().max(8000),

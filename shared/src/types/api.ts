@@ -14,4 +14,5 @@ export type ErrorCode =
   | "NOT_FOUND"
   | "CONFLICT"
   | "BAD_REQUEST"
+  | "PAYLOAD_TOO_LARGE"
   | "INTERNAL_ERROR";

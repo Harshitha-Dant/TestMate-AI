@@ -1,5 +1,6 @@
 import { EXECUTION_STATUSES, INTENTS, MATCH_MODES, RESULT_SOURCES, MOCK_FAULTS, MOCK_MODES, TEST_LANGUAGES, TEST_MODULES, TURN_KINDS } from "@testmate/shared";
 import { z } from "zod";
+import { headerEntry } from "./apiStudio";
 import { idSchema } from "./common";
 
 export const moduleQuery = z.object({ module: z.enum(TEST_MODULES).optional() });
@@ -156,16 +157,8 @@ export const chatbotTargetSchema = z
       .object({
         url: z.string().trim().min(1, "Enter the endpoint URL").max(2000),
         replyPath: z.string().trim().max(200).default("reply"),
-        headers: z
-          .array(
-            z.object({
-              key: z.string().trim().max(200),
-              value: z.string().max(4000).refine((v) => !/[\r\n]/.test(v), "Header values can't contain line breaks"),
-              enabled: z.boolean().default(true),
-            }),
-          )
-          .max(20)
-          .default([]),
+        // Same header rules as API Studio: valid names only, no client-managed headers, no line breaks.
+        headers: z.array(headerEntry).max(20).default([]),
         sendHistory: z.boolean().default(true),
       })
       .nullable()
