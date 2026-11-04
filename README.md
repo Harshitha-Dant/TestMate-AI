@@ -65,8 +65,10 @@ Open **http://localhost:5173**. Stop with `Ctrl+C`.
 The database is created automatically on first start (`server\data\testmate.db`), so step 3 is only needed for
 the demo data. You can also load or remove the demo from **Settings → Demo data**.
 
-npm may print a note that better-sqlite3's install script is "not covered by allowScripts". It is harmless: the
-prebuilt binary loads without running that script.
+No compiler or Visual Studio is needed. better-sqlite3 ships a prebuilt Windows binary, and the root
+`package.json` has an `allowScripts` policy that skips its build-from-source script (`better-sqlite3: false`) and
+allows esbuild's setup script. If you see `gyp ERR! find VS`, your npm is ignoring that policy: update npm
+(`npm install -g npm@latest`) and run `npm install` again.
 
 ### Production-style run (one port)
 

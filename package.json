@@ -34,5 +34,9 @@
     "globals": "17.14.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.1"
+  },
+  "allowScripts": {
+    "better-sqlite3": false,
+    "esbuild@0.28.2": true
   }
 }
