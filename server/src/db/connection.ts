@@ -9,6 +9,8 @@ export function openDb(dbPath: string): Db {
   if (dbPath !== ":memory:") fs.mkdirSync(path.dirname(dbPath), { recursive: true });
   const db = new Database(dbPath);
   db.pragma("foreign_keys = ON");
+  // Wait up to 5 s for a lock instead of failing at once (recommended when Litestream replicates the file).
+  db.pragma("busy_timeout = 5000");
   if (dbPath !== ":memory:") db.pragma("journal_mode = WAL");
   return db;
 }

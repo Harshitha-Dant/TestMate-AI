@@ -106,6 +106,9 @@ Copy `.env.example` to `.env` only if you need to change something. All values a
 | `TESTMATE_API_PORT` | `4000` | API port. The Vite dev server proxies `/api/` to it. |
 | `TESTMATE_DB_PATH` | `server/data/testmate.db` | SQLite file location |
 | `TESTMATE_SECRET_<NAME>` | none | A secret you reference as `{{secret:NAME}}` |
+| `TESTMATE_PUBLIC_MODE` | off | `1` turns on public mode for an online deployment (see below) |
+| `TESTMATE_ADMIN_KEY` | none | Required in public mode, at least 24 characters. Never put it in a file you commit |
+| `TESTMATE_TRUST_PROXY_HOPS` | `1` | Public mode only: reverse proxies in front of the app, used to find each visitor's IP for rate limits |
 
 **Secrets.** Never type a real token into a header. Put it in `.env`:
 
@@ -135,7 +138,7 @@ The same SSRF rules as API Studio apply, so a bot on `localhost` needs **Allow l
 ## Testing
 
 ```powershell
-npm test         # 140 server tests in 18 files + 12 client tests
+npm test         # 166 server tests in 22 files + 14 client tests in 3 files
 npm run smoke    # 23 end-to-end checks against a real server process
 npm run check    # everything, including typecheck and lint
 ```
@@ -158,6 +161,12 @@ Demo rows are flagged in the database and removed with `npm run db:clear-demo` w
 - The server never logs request headers or bodies.
 - CSV exports guard against spreadsheet formula injection.
 - All input is validated with zod and errors use one envelope: `{ ok: false, error: { code, message, details } }`.
+- **Public mode** (`TESTMATE_PUBLIC_MODE=1`, for an online deployment only): deleting anything, removing demo
+  data and changing app-wide settings need the admin key (sent as the `X-TestMate-Admin-Key` header, compared in
+  constant time, never returned or logged; wrong guesses are limited to 5 a minute). "Allow localhost" is forced
+  off, timeouts are capped at 8 s and responses at 256 KB. Each visitor gets 20 runs and 60 changes a minute, all
+  visitors together get 300 requests to other servers an hour, and there can be at most 25 projects. The server
+  refuses to start in public mode without a valid admin key. Off by default, so local use is unchanged.
 
 ## Project structure
 
@@ -184,6 +193,9 @@ TestMate-AI/
 │   │   └── middleware/      error handler, project scope
 │   └── test/                Vitest + Supertest suites
 ├── shared/                  TypeScript types and constants used by both sides
+├── deploy/render/           start.sh (restore, then run under Litestream) and litestream.yml
+├── Dockerfile, render.yaml  container image and Render blueprint for the free online deployment
+├── DEPLOY.md                step-by-step online deployment guide
 ├── .env.example
 ├── eslint.config.js
 └── package.json             npm workspaces
@@ -204,12 +216,23 @@ TestMate-AI/
   with other request shapes, streaming replies or OAuth logins need a small adapter in front of them.
 - **The PDF report uses a built-in Latin font**, so Telugu and Hindi text appears as "?" in the PDF. CSV exports
   keep all characters.
-- **Single user, no authentication.** It is designed to run locally. Do not expose the server to a network.
+- **No user accounts.** Locally there is no login. Online, public mode protects destructive actions with a single
+  admin key, but every visitor sees and shares the same projects and results.
 - **Runs are synchronous.** A suite run completes within one request, which is fine for dozens of tests but not for
   thousands of slow live calls.
 - SQLite in one file: no concurrent multi-process writers.
 - Tested on Windows 11 and Chromium-based browsers. macOS and Linux should work (scripts are cross-platform) but
   were not tested.
+
+## Deploy online (free)
+
+TestMate AI can run on a public HTTPS address at no cost: a **Render** free web service runs the Docker image,
+**Litestream** copies every database change to a private **Backblaze B2** bucket and restores it at startup, and
+public mode protects the shared demo. No payment card is needed. [DEPLOY.md](DEPLOY.md) has the full steps, the
+free limits and what could cost money.
+
+Expect a wake-up of about a minute after 15 minutes without visitors, and up to about a second of changes lost if
+the server is killed abruptly.
 
 ## Publish to GitHub
 

@@ -1,0 +1,23 @@
+# Litestream: continuous backup of the TestMate AI database to a private Backblaze B2 bucket.
+# Every value comes from environment variables set in Render's dashboard; no secret is stored here.
+# Litestream expands ${VAR} references when it reads this file.
+
+# A full snapshot every hour, kept for 7 days: restores stay small (one recent snapshot plus a few
+# changes) and you can go back up to a week. Older snapshots are deleted by Litestream, and the
+# bucket's lifecycle rule then removes their hidden versions (see DEPLOY.md).
+snapshot:
+  interval: 1h
+  retention: 168h
+
+dbs:
+  - path: ${TESTMATE_DB_PATH}
+    replica:
+      type: s3
+      bucket: ${B2_BUCKET}
+      path: testmate
+      endpoint: ${B2_ENDPOINT}
+      region: ${B2_REGION}
+      access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+      secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+      # Push changes every second (at most ~1 s of changes could be lost if the container is killed abruptly).
+      sync-interval: 1s

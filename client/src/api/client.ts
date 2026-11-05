@@ -1,4 +1,5 @@
 import type { ApiResponse, ErrorCode } from "@testmate/shared";
+import { adminHeaders, readAdminKey } from "../lib/adminKey";
 
 export type ClientErrorCode = ErrorCode | "NETWORK_ERROR" | "BAD_RESPONSE";
 
@@ -26,13 +27,20 @@ type Method = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
 
 const SERVER_DOWN = "Cannot reach the TestMate server. Make sure it is running (npm run dev).";
 
-export async function apiRequest<T>(path: string, options: { method?: Method; body?: unknown } = {}): Promise<T> {
+export async function apiRequest<T>(
+  path: string,
+  options: { method?: Method; body?: unknown; adminKey?: string } = {},
+): Promise<T> {
   const { method = "GET", body } = options;
   let res: Response;
   try {
     res = await fetch(`/api${path}`, {
       method,
-      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
+      // The admin key header is only present on a public deployment after the admin unlocks Settings.
+      headers: {
+        ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+        ...adminHeaders(options.adminKey ?? readAdminKey()),
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {

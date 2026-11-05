@@ -49,6 +49,19 @@
   module against a local stand-in target, restarts and checks persistence. `npm run check` = typecheck + lint + tests
   + smoke. Client unit tests live next to the code (*.test.ts). README.md has setup, Known limitations, publishing.
 
+- [x] Deployment (Phase 1, local only): public mode, opt-in with TESTMATE_PUBLIC_MODE=1 (lib/publicMode.ts,
+  middleware/publicMode.ts, lib/rateLimit.ts). createApp(db, { publicMode: { adminKey, limits? }, trustProxyHops })
+  attaches the policy to the Db via a WeakMap (publicPolicy(db)); settingsService.getApiStudio clamps settings
+  (localhost off, timeout ≤ 8 s, response ≤ 256 KB). Guard order: per-IP write limit (60/min), run limit for
+  POST …/run|send|regression/runs (20/min), global outbound cap (300/h; API Studio, suite and regression runs, and
+  single runs only when the project's target is live), admin key (X-TestMate-Admin-Key) for every DELETE, PUT
+  /settings/* and GET /admin/check (5 wrong keys/min), project cap (25). GET /api/meta → AppMeta. index.ts refuses to
+  start in public mode without a ≥24-char key. Client: lib/adminKey.ts (sessionStorage), api/meta.ts,
+  PublicModeBanner, Settings → AdminAccessCard. Deploy files: Dockerfile (node:26.13.0-bookworm-slim, Litestream
+  v0.5.17 checksum-verified), deploy/render/{start.sh,litestream.yml} (hourly snapshots, 7-day retention),
+  render.yaml (free, docker, Singapore, autoDeploy off, secrets sync:false), DEPLOY.md. connection.ts sets
+  busy_timeout 5000. Nothing is deployed yet; Phases 2–4 (push, accounts, deploy and verify) need the user's approval.
+
 Every nav module now has a real page (the placeholder mechanism was removed in M7). New pages: add a lazy route in `client/src/App.tsx` and an item in `lib/nav.ts`.
 
 ## Environment

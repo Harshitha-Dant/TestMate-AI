@@ -15,4 +15,24 @@ export type ErrorCode =
   | "CONFLICT"
   | "BAD_REQUEST"
   | "PAYLOAD_TOO_LARGE"
+  | "ADMIN_REQUIRED"
+  | "RATE_LIMITED"
+  | "LIMIT_REACHED"
   | "INTERNAL_ERROR";
+
+/** What the server tells the UI about how it is running (GET /api/meta). */
+export interface AppMeta {
+  /** True when the server runs as a shared public demo (TESTMATE_PUBLIC_MODE=1). */
+  publicMode: boolean;
+  /** Public-mode limits; null when public mode is off. */
+  limits: PublicLimits | null;
+}
+
+export interface PublicLimits {
+  runsPerMinute: number;
+  writesPerMinute: number;
+  outboundPerHour: number;
+  maxProjects: number;
+  maxTimeoutMs: number;
+  maxResponseKb: number;
+}

@@ -11,7 +11,9 @@ import {
   suiteController,
   testCaseController,
 } from "../controllers/testingController";
-import { sendOk } from "../lib/http";
+import type { AppMeta } from "@testmate/shared";
+import { getDb, sendOk } from "../lib/http";
+import { publicPolicy } from "../lib/publicMode";
 import { requireProject } from "../middleware/projectScope";
 
 /** Routes for one project's data, mounted at /api/projects/:projectId. */
@@ -86,6 +88,14 @@ export function createApiRouter(): Router {
   const api = Router();
 
   api.get("/health", (_req, res) => sendOk(res, { status: "ok" }));
+  api.get("/meta", (req, res) => {
+    const policy = publicPolicy(getDb(req));
+    const meta: AppMeta = { publicMode: !!policy, limits: policy ? policy.limits : null };
+    sendOk(res, meta);
+  });
+  // Lets the UI confirm an admin key. In public mode the guard checks the key before this runs;
+  // without public mode there is no admin key, so this always answers ok.
+  api.get("/admin/check", (_req, res) => sendOk(res, { admin: true }));
   api.post("/language/detect", multilingualController.detect);
   api.get("/settings/api-studio", settingsController.getApiStudio);
   api.put("/settings/api-studio", settingsController.setApiStudio);

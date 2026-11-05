@@ -16,6 +16,7 @@ import { useAsync } from "../../hooks/useAsync";
 import { cn } from "../../lib/cn";
 import { readTheme, saveTheme } from "../../lib/theme";
 import { ApiSettingsCard } from "../api/ApiSettingsCard";
+import { AdminAccessCard } from "./AdminAccessCard";
 import { DeleteProjectDialog } from "../projects/DeleteProjectDialog";
 import { ProjectFormModal } from "../projects/ProjectFormModal";
 
@@ -30,6 +31,7 @@ export function SettingsPage() {
           <ApiSettingsCard />
         </div>
         <div className="min-w-0 space-y-4">
+          <AdminAccessCard />
           <ProjectsCard />
           <DemoDataCard />
         </div>

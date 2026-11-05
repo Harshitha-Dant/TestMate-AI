@@ -4,6 +4,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { IconButton } from "../ui/Button";
 import { LoadingState } from "../ui/States";
+import { PublicModeBanner } from "./PublicModeBanner";
 import { Brand, Sidebar } from "./Sidebar";
 
 export function AppShell() {
@@ -41,6 +42,7 @@ export function AppShell() {
 
       <main className="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
         <div className="mx-auto max-w-7xl">
+          <PublicModeBanner />
           {/* Keyed by path so navigating away from a crashed page clears the error. */}
           <ErrorBoundary key={pathname}>
             <Suspense fallback={<LoadingState label="Loading page…" />}>
