@@ -89,7 +89,13 @@ into Render once and type it into **Settings → Admin access** when you need to
    `TestMate-AI` repository.
 2. **New → Blueprint**, select the repository. Render reads `render.yaml` and shows one free web service,
    `testmate-ai`, in the Singapore region.
-3. Fill in the six secret values when asked:
+   If you create the service with **New → Web Service** instead of a Blueprint, Render ignores
+   `render.yaml`: add every variable below yourself (service → Environment). The image already sets
+   `TESTMATE_PUBLIC_MODE=1`, `TESTMATE_API_PORT=10000` and `TESTMATE_DB_PATH`; don't override them
+   (the start script refuses to run if public mode is turned off).
+3. Fill in the six secret values when asked. Names are case-sensitive; paste values without spaces
+   before or after. If the start fails with `[start] Missing environment variable NAME`, add that
+   variable. The script stops at the first missing one, so check that all six exist:
 
    | Variable | Value |
    |---|---|

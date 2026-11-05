@@ -16,6 +16,13 @@ for name in TESTMATE_ADMIN_KEY LITESTREAM_ACCESS_KEY_ID LITESTREAM_SECRET_ACCESS
   fi
 done
 
+# The online deployment must run in public mode (admin key, rate limits, locked request settings).
+# The Docker image sets TESTMATE_PUBLIC_MODE=1; refuse to start if a dashboard setting overrides it.
+if [ "${TESTMATE_PUBLIC_MODE:-}" != "1" ]; then
+  echo "[start] TESTMATE_PUBLIC_MODE must be 1 for the online deployment. Remove the override or set it to 1 in Render: service → Environment." >&2
+  exit 1
+fi
+
 mkdir -p "$(dirname "$DB")"
 
 # Restore the latest backup. Does nothing if the database file already exists, and succeeds without

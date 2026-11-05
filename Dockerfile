@@ -31,8 +31,11 @@ COPY . .
 RUN npm run build
 
 # The database lives on the container's temporary disk and is restored from B2 at every start.
+# This image is only for the online deployment, so public mode is on by default (start.sh also
+# refuses to start without it). Local development does not use this file.
 ENV TESTMATE_DB_PATH=/var/data/testmate.db \
-    TESTMATE_API_PORT=10000
+    TESTMATE_API_PORT=10000 \
+    TESTMATE_PUBLIC_MODE=1
 RUN mkdir -p /var/data && chown node:node /var/data
 
 USER node
